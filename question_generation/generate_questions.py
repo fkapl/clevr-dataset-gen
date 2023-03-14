@@ -53,12 +53,12 @@ parser.add_argument('--metadata_file', default='metadata.json',
 					help="JSON file containing metadata about functions")
 parser.add_argument('--synonyms_json', default='synonyms.json',
 					help="JSON file defining synonyms for parameter values")
-parser.add_argument('--template_dir', default='my_CLEVR_1.0_templates',
+parser.add_argument('--template_dir', default='CLEVR_1.0_templates',
 					help="Directory containing JSON templates for questions")
 
 # Output
 parser.add_argument('--output_questions_file',
-					default='../output/my_CLEVR_questions.json',
+					default='../../my_CLEVR_questions.json',
 					help="The output file to write containing generated questions")
 
 # Control which and how many images to process
@@ -75,7 +75,7 @@ parser.add_argument('--num_scenes', default=0, type=int,
 parser.add_argument('--templates_per_image', default=10, type=int,
 					help="The number of different templates that should be instantiated " +
 						 "on each image")
-parser.add_argument('--instances_per_template', default=1, type=int,
+parser.add_argument('--instances_per_template', default=5, type=int,
 					help="The number of times each template should be instantiated on an image")
 
 # Misc
@@ -711,11 +711,11 @@ def main(args):
 					questions[i] = []
 				questions[i].append({
 					'question': t,
-					# 'program': q,
 					'answer': a,
 					'template_filename': fn,
 					'question_family_index': idx,
 					'question_index': len(questions),
+					'program': q,
 				})
 			if len(ts) > 0:
 				if args.verbose:
