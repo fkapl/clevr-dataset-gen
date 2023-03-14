@@ -670,8 +670,7 @@ def main(args):
 
 	questions = {}
 	scene_count = 0
-	# for i in range(len(list(dataset.values())[0])):
-	for i in range(10):
+	for i in range(len(list(dataset.values())[0])):
 		scene_struct = {k: dataset[k][i] for k in dataset}
 		scene_struct = convert_data_format(scene_struct, i)
 		# print(scene_struct)
