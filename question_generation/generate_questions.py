@@ -57,18 +57,15 @@ parser.add_argument('--template_dir', default='CLEVR_1.0_templates',
 					help="Directory containing JSON templates for questions")
 
 # Output
-parser.add_argument('--output_questions_file',
-					default='../../my_CLEVR_questions.json',
+parser.add_argument('--output_questions_path',
+					default='../../',
 					help="The output file to write containing generated questions")
 
 # Control which and how many images to process
 parser.add_argument('--scene_start_idx', default=0, type=int,
 					help="The image at which to start generating questions; this allows " +
 						 "question generation to be split across many workers")
-parser.add_argument('--num_scenes', default=0, type=int,
-					help="The number of images for which to generate questions. Setting to 0 " +
-						 "generates questions for all scenes in the input file starting from " +
-						 "--scene_start_idx")
+parser.add_argument('--scene_end_idx', default=0, type=int)
 
 # Control the number of questions per image; we will attempt to generate
 # templates_per_image * instances_per_template questions per image.
@@ -670,7 +667,10 @@ def main(args):
 
 	questions = {}
 	scene_count = 0
-	for i in range(len(list(dataset.values())[0])):
+	start_idx = args.scene_start_idx
+	end_idx = len(list(dataset.values())[0]) if args.scene_end_idx == 0 else args.scene_end_idx
+	print(f'start: {start_idx}, end: {end_idx}')
+	for i in range(start_idx, end_idx):
 		scene_struct = {k: dataset[k][i] for k in dataset}
 		scene_struct = convert_data_format(scene_struct, i)
 		# print(scene_struct)
@@ -746,8 +746,8 @@ def main(args):
 	# 		else:
 	# 			f['value_inputs'] = []
 
-	with open(args.output_questions_file, 'w') as f:
-		print('Writing output to %s' % args.output_questions_file)
+	with open(f'{args.output_questions_path}CLEVR_questions_{start_idx}_{end_idx}.json', 'w') as f:
+		print(f'Writing output to {args.output_questions_path}CLEVR_questions_{start_idx}_{end_idx}.json')
 		json.dump({
 			'questions': questions,
 		}, f)
