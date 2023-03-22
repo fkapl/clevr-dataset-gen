@@ -9,6 +9,8 @@ from __future__ import print_function
 import argparse, json, os, itertools, random, shutil
 import time
 import re
+from scipy.spatial import KDTree
+from webcolors import hex_to_rgb
 
 import h5py
 import numpy as np
@@ -69,7 +71,7 @@ parser.add_argument('--scene_end_idx', default=0, type=int)
 
 # Control the number of questions per image; we will attempt to generate
 # templates_per_image * instances_per_template questions per image.
-parser.add_argument('--templates_per_image', default=10, type=int,
+parser.add_argument('--templates_per_image', default=9, type=int,
 					help="The number of different templates that should be instantiated " +
 						 "on each image")
 parser.add_argument('--instances_per_template', default=5, type=int,
@@ -98,6 +100,8 @@ def precompute_filter_options(scene_struct, metadata):
 
 	if metadata['dataset'] == 'CLEVR-v1.0':
 		attr_keys = ['size', 'color', 'material', 'shape']
+	elif metadata['dataset'] == 'Multi-dSprites':
+		attr_keys = ['size', 'color', 'shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -110,8 +114,7 @@ def precompute_filter_options(scene_struct, metadata):
 		masks.append(mask)
 
 	for object_idx, obj in enumerate(scene_struct['objects']):
-		if metadata['dataset'] == 'CLEVR-v1.0':
-			keys = [tuple(obj[k] for k in attr_keys)]
+		keys = [tuple(obj[k] for k in attr_keys)]
 
 		for mask in masks:
 			for key in keys:
@@ -148,6 +151,8 @@ def add_empty_filter_options(attribute_map, metadata, num_to_add):
 
 	if metadata['dataset'] == 'CLEVR-v1.0':
 		attr_keys = ['Size', 'Color', 'Material', 'Shape']
+	elif metadata['dataset'] == 'Multi-dSprites':
+		attr_keys = ['Size', 'Color', 'Shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -407,7 +412,7 @@ def instantiate_templates_dfs(scene_struct, template, metadata, answer_counts,
 						cur_next_vals[param_name] = param_val
 						next_input = len(state['nodes']) + len(new_nodes) - 1
 					elif param_val is None:
-						if metadata['dataset'] == 'CLEVR-v1.0' and param_type == 'Shape':
+						if param_type == 'Shape':
 							param_val = 'thing'
 						else:
 							param_val = ''
@@ -527,38 +532,72 @@ def replace_optionals(s):
 	return s
 
 
-CLEVR_MAPPING = {
-	'shape': {
-		1: 'sphere',
-		2: 'cylinder',
-		3: 'cube'
+def convert_rgb_to_names(rgb_tuple):
+	mapping = {
+		'#00ffff': 'cyan',
+		'#000000': 'black',
+		'#0000ff': 'blue',
+		'#a52a2a': 'brown',
+		'#808080': 'gray',
+		'#008000': 'green',
+		'#800080': 'purple',
+		'#ff0000': 'red',
+		'#ffff00': 'yellow',
+		'#ffffff': 'white',
+	}
+	names = []
+	rgb_values = []
+	for color_hex, color_name in mapping.items():
+		names.append(color_name)
+		rgb_values.append(hex_to_rgb(color_hex))
+
+	kdt_db = KDTree(rgb_values)
+	distance, index = kdt_db.query(rgb_tuple)
+	return names[index]
+
+
+MAPPING = {
+	'CLEVR-v1.0': {
+		'shape': {
+			1: 'sphere',
+			2: 'cylinder',
+			3: 'cube'
+		},
+		'color': {
+			1: 'red',
+			2: 'cyan',
+			3: 'green',
+			4: 'blue',
+			5: 'brown',
+			6: 'gray',
+			7: 'purple',
+			8: 'yellow'
+		},
+		'size': {
+			1: 'large',
+			2: 'small'
+		},
+		'material': {
+			1: 'rubber',
+			2: 'metal'
+		}
 	},
-	'color': {
-		1: 'red',
-		3: 'green',
-		2: 'cyan',
-		4: 'blue',
-		5: 'brown',
-		6: 'gray',
-		7: 'purple',
-		8: 'yellow'
-	},
-	'size': {
-		1: 'large',
-		2: 'small'
-	},
-	'material': {
-		1: 'rubber',
-		2: 'metal'
+	'Multi-dSprites': {
+		'shape': {
+			1: 'square',
+			2: 'ellipse',
+			3: 'heart'
+		},
 	}
 }
 
 
-def convert_data_format(data, index):
+def convert_data_format(data, index, dataset):
 	# data: {key: [values]}
 	res = {'image_index': index, 'objects': [], 'relationships': {'right': [], 'left': [], 'behind': [], 'front': []}}
 	directions = ['right', 'left', 'behind', 'front']
 	valid_object_indices = []
+
 	for obj_index in range(1, len(list(data.values())[0])):
 		if data['visibility'][obj_index]:
 			valid_object_indices.append(obj_index)
@@ -566,14 +605,24 @@ def convert_data_format(data, index):
 				res['relationships'][dir].append([])
 	for idx, i in enumerate(valid_object_indices):
 		for j_idx, j in enumerate(valid_object_indices[idx + 1:]):
+			if dataset == 'CLEVR-v1.0':
+				x1 = data['pixel_coords'][i][0]
+				x2 = data['pixel_coords'][j][0]
+				y1 = data['pixel_coords'][i][1]
+				y2 = data['pixel_coords'][j][1]
+			elif dataset == 'Multi-dSprites':
+				x1 = data['x'][i]
+				x2 = data['x'][j]
+				y1 = data['y'][i]
+				y2 = data['y'][j]
 			# print(idx, j_idx + idx + 1)
-			if data['pixel_coords'][i][0] >= data['pixel_coords'][j][0]:  # x[i] >= x[j]
+			if x1 >= x2:  # x[i] >= x[j]
 				res['relationships']['right'][j_idx + idx + 1].append(idx)
 				res['relationships']['left'][idx].append(j_idx + idx + 1)
 			else:
 				res['relationships']['left'][j_idx + idx + 1].append(idx)
 				res['relationships']['right'][idx].append(j_idx + idx + 1)
-			if data['pixel_coords'][i][1] >= data['pixel_coords'][j][1]:  # y[i] >= y[j]
+			if y1 >= y2:  # y[i] >= y[j]
 				res['relationships']['front'][j_idx + idx + 1].append(idx)
 				res['relationships']['behind'][idx].append(j_idx + idx + 1)
 			else:
@@ -586,8 +635,13 @@ def convert_data_format(data, index):
 			if property in ['pixel_coords']:
 				obj[property] = data[property][i].tolist()
 			else:
-				if property in CLEVR_MAPPING:
-					obj[property] = CLEVR_MAPPING[property][data[property][i].item()]
+				if dataset == 'Multi-dSprites' and property in ['color', 'scale']:
+					if property == 'color':
+						obj['color'] = convert_rgb_to_names((256 * data['color'][i]).astype(int))
+					elif property == 'scale':
+						obj['size'] = 'large' if data['scale'][i] >= 0.8 else 'small'
+				elif property in MAPPING[dataset]:
+					obj[property] = MAPPING[dataset][property][data[property][i].item()]
 				else:
 					obj[property] = data[property][i].item()
 		res['objects'].append(obj)
@@ -598,7 +652,7 @@ def main(args):
 	with open(args.metadata_file, 'r') as f:
 		metadata = json.load(f)
 		dataset = metadata['dataset']
-		if dataset != 'CLEVR-v1.0':
+		if dataset not in ['CLEVR-v1.0', 'Multi-dSprites']:
 			raise ValueError('Unrecognized dataset "%s"' % dataset)
 
 	functions_by_name = {}
@@ -638,6 +692,8 @@ def main(args):
 			if final_dtype == 'Integer':
 				if metadata['dataset'] == 'CLEVR-v1.0':
 					answers = list(range(0, 11))
+				elif metadata['dataset'] == 'Multi-dSprites':
+					answers = list(range(0, 6))
 			template_answer_counts[key[:2]] = {}
 			for a in answers:
 				template_answer_counts[key[:2]][a] = 0
@@ -672,7 +728,7 @@ def main(args):
 	print(f'start: {start_idx}, end: {end_idx}')
 	for i in range(start_idx, end_idx):
 		scene_struct = {k: dataset[k][i] for k in dataset}
-		scene_struct = convert_data_format(scene_struct, i)
+		scene_struct = convert_data_format(scene_struct, i, metadata['dataset'])
 		# print(scene_struct)
 		# sys.exit()
 		print(f'starting image [{i}]')
@@ -746,8 +802,8 @@ def main(args):
 	# 		else:
 	# 			f['value_inputs'] = []
 
-	with open(f'{args.output_questions_path}CLEVR_questions_{start_idx}_{end_idx}.json', 'w') as f:
-		print(f'Writing output to {args.output_questions_path}CLEVR_questions_{start_idx}_{end_idx}.json')
+	with open(f'{args.output_questions_path}{metadata["dataset"]}_questions_{start_idx}_{end_idx}.json', 'w') as f:
+		print(f'Writing output to {args.output_questions_path}{metadata["dataset"]}_questions_{start_idx}_{end_idx}.json')
 		json.dump({
 			'questions': questions,
 		}, f)
