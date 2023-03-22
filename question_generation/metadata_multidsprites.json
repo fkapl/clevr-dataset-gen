@@ -9,7 +9,7 @@
       "square", "heart", "ellipse"
     ],
     "Color": [
-      "gray", "red", "blue", "green", "brown", "purple", "cyan", "yellow"
+      "cyan", "black", "blue", "brown", "gray", "green", "purple", "red", "yellow", "white"
     ],
     "Relation": [
       "left", "right", "behind", "front"
