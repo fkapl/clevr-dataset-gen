@@ -1,0 +1,168 @@
+[
+    {
+        "text": [
+            "How many <Z> <S>s are there?",
+            "What number of <Z> <S>s are there?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_count"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            }
+        ],
+        "constraints": []
+    },
+    {
+        "text": [
+            "Are there any <Z> <S>s?",
+            "Are any <Z> <S>s visible?",
+            "Is there a <Z> <S>?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_exist"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            }
+        ],
+        "constraints": []
+    },
+    {
+        "text": [
+            "What shape is the <Z> <S>?",
+            "What is the shape of the <Z> <S>?",
+            "The <Z> <S> has what shape?",
+            "What is the shape of the <Z> <S>?",
+            "There is a <Z> <S>; what shape is it?",
+            "The <Z> <S> is what shape?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "inputs": [
+                    1
+                ],
+                "type": "query_shape"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<S>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    },
+    {
+        "text": [
+            "What size is the <Z> <S>?",
+            "What is the size of the <Z> <S>?",
+            "The <Z> <S> has what size?",
+            "The <Z> <S> is what size?",
+            "How big is the <Z> <S>?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "inputs": [
+                    1
+                ],
+                "type": "query_size"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<Z>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    }
+]

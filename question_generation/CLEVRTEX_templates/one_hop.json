@@ -1,0 +1,261 @@
+[
+    {
+        "text": [
+            "What number of <Z2> <S2>s are <R> the <Z> <S>?",
+            "How many <Z2> <S2>s are <R> the <Z> <S>?",
+            "There is a <Z> <S>; how many <Z2> <S2>s are <R> it?",
+            "There is a <Z> <S>; what number of <Z2> <S2>s are <R> it?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_count"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": []
+    },
+    {
+        "text": [
+            "Are there any <Z2> <S2>s <R> the <Z> <S>?",
+            "There is a <Z> <S>; are there any <Z2> <S2>s <R> it?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_exist"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": []
+    },
+    {
+        "text": [
+            "What size is the <Z2> <S2> [that is] <R> the <Z> <S>?",
+            "What is the size of the <Z2> <S2> [that is] <R> the <Z> <S>?",
+            "How big is the <Z2> <S2> [that is] <R> the <Z> <S>?",
+            "There is a <Z2> <S2> [that is] <R> the <Z> <S>; what size is it?",
+            "There is a <Z2> <S2> [that is] <R> the <Z> <S>; how big is it?",
+            "There is a <Z2> <S2> [that is] <R> the <Z> <S>; what is its size?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_unique"
+            },
+            {
+                "inputs": [
+                    2
+                ],
+                "type": "query_size"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<Z2>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    },
+    {
+        "text": [
+            "What shape is the <Z2> <S2> [that is] <R> the <Z> <S>?",
+            "What is the shape of the <Z2> <S2> [that is] <R> the <Z> <S>?",
+            "The <Z2> <S2> [that is] <R> the <Z> <S> has what shape?",
+            "There is a <Z2> <S2> [that is] <R> the <Z> <S>; what is its shape?",
+            "There is a <Z2> <S2> [that is] <R> the <Z> <S>; what shape is it?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_unique"
+            },
+            {
+                "inputs": [
+                    2
+                ],
+                "type": "query_shape"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<S2>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    }
+]

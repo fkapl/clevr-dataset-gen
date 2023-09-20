@@ -102,6 +102,8 @@ def precompute_filter_options(scene_struct, metadata):
 		attr_keys = ['size', 'color', 'material', 'shape']
 	elif metadata['dataset'] == 'Multi-dSprites':
 		attr_keys = ['size', 'color', 'shape']
+	elif metadata['dataset'] == 'CLEVRTEX':
+		attr_keys = ['size', 'shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -153,6 +155,8 @@ def add_empty_filter_options(attribute_map, metadata, num_to_add):
 		attr_keys = ['Size', 'Color', 'Material', 'Shape']
 	elif metadata['dataset'] == 'Multi-dSprites':
 		attr_keys = ['Size', 'Color', 'Shape']
+	elif metadata['dataset'] == 'CLEVRTEX':
+		attr_keys = ['Size', 'Shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -588,7 +592,20 @@ MAPPING = {
 			2: 'ellipse',
 			3: 'heart'
 		},
-	}
+	},
+	'CLEVRTEX': {
+		'shape': {
+			1: 'cube',
+			2: 'cylinder',
+			3: 'sphere',
+			4: 'monkey head'
+		},
+		'size': {
+			1: 'small',
+			2: 'medium',
+			3: 'large'
+		},
+	},
 }
 
 
@@ -598,14 +615,14 @@ def convert_data_format(data, index, dataset):
 	directions = ['right', 'left', 'behind', 'front']
 	valid_object_indices = []
 
-	for obj_index in range(1, len(list(data.values())[0])):
+	for obj_index in range(1, len(data["visibility"])):
 		if data['visibility'][obj_index]:
 			valid_object_indices.append(obj_index)
 			for dir in directions:
 				res['relationships'][dir].append([])
 	for idx, i in enumerate(valid_object_indices):
 		for j_idx, j in enumerate(valid_object_indices[idx + 1:]):
-			if dataset == 'CLEVR-v1.0':
+			if dataset.startswith('CLEVR'):
 				x1 = data['pixel_coords'][i][0]
 				x2 = data['pixel_coords'][j][0]
 				y1 = data['pixel_coords'][i][1]
@@ -630,7 +647,7 @@ def convert_data_format(data, index, dataset):
 				res['relationships']['front'][idx].append(j_idx + idx + 1)
 		obj = {}
 		for property in data:
-			if property in ['num_actual_objects', 'image', 'mask', '']:
+			if property in ['num_actual_objects', 'image', 'mask', '', 'ground_material']:
 				continue
 			if property in ['pixel_coords']:
 				obj[property] = data[property][i].tolist()
@@ -652,7 +669,7 @@ def main(args):
 	with open(args.metadata_file, 'r') as f:
 		metadata = json.load(f)
 		dataset = metadata['dataset']
-		if dataset not in ['CLEVR-v1.0', 'Multi-dSprites']:
+		if dataset not in ['CLEVR-v1.0', 'Multi-dSprites', 'CLEVRTEX']:
 			raise ValueError('Unrecognized dataset "%s"' % dataset)
 
 	functions_by_name = {}
@@ -690,7 +707,7 @@ def main(args):
 			if final_dtype == 'Bool':
 				answers = [True, False]
 			if final_dtype == 'Integer':
-				if metadata['dataset'] == 'CLEVR-v1.0':
+				if metadata['dataset'].startswith('CLEVR'):
 					answers = list(range(0, 11))
 				elif metadata['dataset'] == 'Multi-dSprites':
 					answers = list(range(0, 6))
@@ -729,7 +746,6 @@ def main(args):
 	for i in range(start_idx, end_idx):
 		scene_struct = {k: dataset[k][i] for k in dataset}
 		scene_struct = convert_data_format(scene_struct, i, metadata['dataset'])
-		# print(scene_struct)
 		# sys.exit()
 		print(f'starting image [{i}]')
 
