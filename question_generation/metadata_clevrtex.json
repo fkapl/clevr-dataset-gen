@@ -6,13 +6,16 @@
     "Integer": null,
     "Bool": null,
     "Shape": [
-      "cube", "cylinder", "sphere", "monkey head"
+      "cone", "cube", "cylinder", "monkey head", "icosahedron", "teapot", "sphere", "torus"
     ],
     "Relation": [
       "left", "right", "behind", "front"
     ],
     "Size": [
       "small", "medium", "large"
+    ],
+    "Material": [
+      "green tiled", "blue denim", "red fabric", "green forest", "red leather", "rocky gravel", "rusty metal", "white sandstone"
     ]
   },
   "functions": [
@@ -33,6 +36,13 @@
       "name": "filter_size",
       "inputs": ["ObjectSet"],
       "side_inputs": ["Size"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
+      "name": "filter_material",
+      "inputs": ["ObjectSet"],
+      "side_inputs": ["Material"],
       "output": "ObjectSet",
       "terminal": false
     },
@@ -81,6 +91,12 @@
       "terminal": true
     },
     {
+      "name": "query_material",
+      "inputs": ["Object"],
+      "output": "Material",
+      "terminal": true
+    },
+    {
       "name": "exist",
       "inputs": ["ObjectSet"],
       "output": "Bool",
@@ -117,6 +133,12 @@
       "terminal": true
     },
     {
+      "name": "equal_material",
+      "inputs": ["Material", "Material"],
+      "output": "Bool",
+      "terminal": true
+    },
+    {
       "name": "equal_object",
       "inputs": ["Object", "Object"],
       "output": "Bool",
@@ -135,9 +157,15 @@
       "terminal": false
     },
     {
+      "name": "same_material",
+      "inputs": ["Object"],
+      "output": "ObjectSet",
+      "terminal": false
+    },
+    {
       "name": "filter",
       "inputs": ["ObjectSet"],
-      "side_inputs": ["Size", "Shape"],
+      "side_inputs": ["Size", "Material", "Shape"],
       "output": "ObjectSet",
       "terminal": false,
       "template_only": true
@@ -145,7 +173,7 @@
     {
       "name": "filter_unique",
       "inputs": ["ObjectSet"],
-      "side_inputs": ["Size", "Shape"],
+      "side_inputs": ["Size", "Material", "Shape"],
       "output": "Object",
       "terminal": false,
       "template_only": true
@@ -153,7 +181,7 @@
     {
       "name": "filter_count",
       "inputs": ["ObjectSet"],
-      "side_inputs": ["Size", "Shape"],
+      "side_inputs": ["Size", "Material", "Shape"],
       "output": "Integer",
       "terminal": true,
       "template_only": true
@@ -161,7 +189,7 @@
     {
       "name": "filter_exist",
       "inputs": ["ObjectSet"],
-      "side_inputs": ["Size", "Shape"],
+      "side_inputs": ["Size", "Material", "Shape"],
       "output": "Bool",
       "terminal": true,
       "template_only": true
@@ -169,7 +197,7 @@
     {
       "name": "relate_filter",
       "inputs": ["Object"],
-      "side_inputs": ["Relation", "Size", "Shape"],
+      "side_inputs": ["Relation", "Size", "Material", "Shape"],
       "output": "ObjectSet",
       "terminal": false,
       "template_only": true
@@ -177,7 +205,7 @@
     {
       "name": "relate_filter_unique",
       "inputs": ["Object"],
-      "side_inputs": ["Relation", "Size", "Shape"],
+      "side_inputs": ["Relation", "Size", "Material", "Shape"],
       "output": "Object",
       "terminal": false,
       "template_only": true
@@ -185,7 +213,7 @@
     {
       "name": "relate_filter_count",
       "inputs": ["Object"],
-      "side_inputs": ["Relation", "Size", "Shape"],
+      "side_inputs": ["Relation", "Size", "Material", "Shape"],	
       "output": "Integer",
       "terminal": false,
       "template_only": true
@@ -193,7 +221,7 @@
     {
       "name": "relate_filter_exist",
       "inputs": ["Object"],
-      "side_inputs": ["Relation", "Size", "Shape"],
+      "side_inputs": ["Relation", "Size", "Material", "Shape"],
       "output": "Bool",
       "terminal": false,
       "template_only": true

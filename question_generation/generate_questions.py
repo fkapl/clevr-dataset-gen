@@ -14,6 +14,7 @@ from webcolors import hex_to_rgb
 
 import h5py
 import numpy as np
+from tqdm import tqdm
 
 import question_engine as qeng
 
@@ -103,7 +104,7 @@ def precompute_filter_options(scene_struct, metadata):
 	elif metadata['dataset'] == 'Multi-dSprites':
 		attr_keys = ['size', 'color', 'shape']
 	elif metadata['dataset'] == 'CLEVRTEX':
-		attr_keys = ['size', 'shape']
+		attr_keys = ['size', 'material', 'shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -156,7 +157,7 @@ def add_empty_filter_options(attribute_map, metadata, num_to_add):
 	elif metadata['dataset'] == 'Multi-dSprites':
 		attr_keys = ['Size', 'Color', 'Shape']
 	elif metadata['dataset'] == 'CLEVRTEX':
-		attr_keys = ['Size', 'Shape']
+		attr_keys = ['Size', 'Material', 'Shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -560,7 +561,7 @@ def convert_rgb_to_names(rgb_tuple):
 	return names[index]
 
 
-MAPPING = {
+""" MAPPING = {
 	'CLEVR-v1.0': {
 		'shape': {
 			1: 'sphere',
@@ -606,10 +607,10 @@ MAPPING = {
 			3: 'large'
 		},
 	},
-}
+} """
 
 
-def convert_data_format(data, index, dataset):
+""" def convert_data_format(data, index, dataset):
 	# data: {key: [values]}
 	res = {'image_index': index, 'objects': [], 'relationships': {'right': [], 'left': [], 'behind': [], 'front': []}}
 	directions = ['right', 'left', 'behind', 'front']
@@ -662,7 +663,44 @@ def convert_data_format(data, index, dataset):
 				else:
 					obj[property] = data[property][i].item()
 		res['objects'].append(obj)
-	return res
+	return res """
+
+MAPPING = {
+	'CLEVRTEX': {
+		'shape': {
+			'Cone': 'cone', 
+			'Cube': 'cube',
+			'Cylinder': 'cylinder', 
+			'Suzanne': 'monkey head', 
+			'Icosahedron': 'icosahedron', # Is there a better name for this? Probably not
+			'NewellTeapot': 'teapot', 
+			'Sphere': 'sphere', 
+			'Torus': 'torus'
+		},
+		'material': {
+			'green_tiles': 'green tiled',
+			'blue_denim': 'blue denim',
+			'red_fabric': 'red fabric',
+			'green_forest': 'green forest',
+			'red_leather': 'red leather',
+			'rocky_gravel': 'rocky gravel',
+			'rusty_metal': 'rusty metal',
+			'white_sandstone': 'white sandstone',
+		},
+	},
+}
+
+def convert_data_format(data, index, dataset):
+	# data: {key: [values]}
+	# For CLEVRTEX, we only need to convert the shape and material
+	if dataset == 'CLEVRTEX':
+		for i in range(len(data['objects'])):
+			data['objects'][i]['shape'] = MAPPING[dataset]['shape'][data['objects'][i]['shape']]
+			data['objects'][i]['material'] = MAPPING[dataset]['material'][data['objects'][i]['material']]
+	else:
+		raise ValueError('Unrecognized dataset "%s"' % dataset)
+
+	return data
 
 
 def main(args):
@@ -719,20 +757,22 @@ def main(args):
 	template_counts, template_answer_counts = reset_counts()
 
 	# Read file containing input scenes
-	# with open(args.input_scene_file, 'r') as f:
-	#   scene_data = json.load(f)
-	#   all_scenes = scene_data['scenes']
+	with open(args.input_scene_file, 'r') as f:
+		scene_data = json.load(f)
+		all_scenes = scene_data['scenes']
 
-	dataset = h5py.File(args.input_scene_file, "r")
+	#dataset = h5py.File(args.input_scene_file, "r")
 	# From `h5py.File` to a dict of `h5py.Datasets`.
-	dataset = {k: dataset[k] for k in dataset}
+	#dataset = {k: dataset[k] for k in dataset}
 
-	# begin = args.scene_start_idx
-	# if args.num_scenes > 0:
-	#   end = args.scene_start_idx + args.num_scenes
-	#   all_scenes = all_scenes[begin:end]
-	# else:
-	#   all_scenes = all_scenes[begin:]
+	begin = args.scene_start_idx
+	#print(f'begin: {begin}')
+	#print(f'end: {args.scene_end_idx}')
+	#print(f'all_scenes: {all_scenes}')
+	if args.scene_end_idx > 0:
+		all_scenes = all_scenes[begin:args.scene_end_idx]
+	else:
+		all_scenes = all_scenes[begin:]
 
 	# Read synonyms file
 	with open(args.synonyms_json, 'r') as f:
@@ -740,14 +780,21 @@ def main(args):
 
 	questions = {}
 	scene_count = 0
-	start_idx = args.scene_start_idx
-	end_idx = len(list(dataset.values())[0]) if args.scene_end_idx == 0 else args.scene_end_idx
-	print(f'start: {start_idx}, end: {end_idx}')
-	for i in range(start_idx, end_idx):
-		scene_struct = {k: dataset[k][i] for k in dataset}
-		scene_struct = convert_data_format(scene_struct, i, metadata['dataset'])
+	end_idx = args.scene_end_idx if args.scene_end_idx > 0 else begin + len(all_scenes)
+	#end_idx = len(list(dataset.values())[0]) if args.scene_end_idx == 0 else args.scene_end_idx
+	#print(f'start: {start_idx}, end: {end_idx}')
+	print(f'start: {begin}, end: {begin+len(all_scenes)}')
+	for i in tqdm(range(0, len(all_scenes)), desc="Generating questions"):
+		#scene_struct = {k: dataset[k][i] for k in dataset}
+		#scene_struct = convert_data_format(scene_struct, i, metadata['dataset'])
 		# sys.exit()
-		print(f'starting image [{i}]')
+		scene_struct = all_scenes[i]
+		scene_struct = convert_data_format(scene_struct, i, metadata['dataset'])
+		#print(f'starting image [{i}]')
+		#print(scene_struct)
+		
+		# Use filename id as id for questions as well
+		id = scene_struct['image_filename']
 
 		if scene_count % args.reset_counts_every == 0:
 			print('resetting counts')
@@ -778,9 +825,9 @@ def main(args):
 				toc = time.time()
 				print('that took ', toc - tic)
 			for t, q, a in zip(ts, qs, ans):
-				if i not in questions:
-					questions[i] = []
-				questions[i].append({
+				if id not in questions:
+					questions[id] = []
+				questions[id].append({
 					'question': t,
 					'answer': a,
 					'template_filename': fn,
@@ -818,8 +865,9 @@ def main(args):
 	# 		else:
 	# 			f['value_inputs'] = []
 
-	with open(f'{args.output_questions_path}{metadata["dataset"]}_questions_{start_idx}_{end_idx}.json', 'w') as f:
-		print(f'Writing output to {args.output_questions_path}{metadata["dataset"]}_questions_{start_idx}_{end_idx}.json')
+	output_questions_path = f'{args.output_questions_path}_{begin}_{end_idx}.json'
+	with open(output_questions_path, 'w') as f:
+		print(f'Writing output to {output_questions_path}')
 		json.dump({
 			'questions': questions,
 		}, f)
@@ -829,7 +877,6 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	if args.profile:
 		import cProfile
-
 		cProfile.run('main(args)')
 	else:
 		main(args)

@@ -1,0 +1,384 @@
+[
+    {
+        "text": [
+            "What number of <Z2> <M2> <S2>s are <R> the <Z> <M> <S>?",
+            "How many <Z2> <M2> <S2>s are <R> the <Z> <M> <S>?",
+            "There is a <Z> <M> <S>; how many <Z2> <M2> <S2>s are <R> it?",
+            "There is a <Z> <M> <S>; what number of <Z2> <M2> <S2>s are <R> it?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<M>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<M2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_count"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Material",
+                "name": "<M>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Material",
+                "name": "<M2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": []
+    },
+    {
+        "text": [
+            "Are there any <Z2> <M2> <S2>s <R> the <Z> <M> <S>?",
+            "There is a <Z> <M> <S>; are there any <Z2> <M2> <S2>s <R> it?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<M>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<M2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_exist"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Material",
+                "name": "<M>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Material",
+                "name": "<M2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": []
+    },
+    {
+        "text": [
+            "What size is the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "What is the size of the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "How big is the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what size is it?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; how big is it?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what is its size?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<M>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<M2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_unique"
+            },
+            {
+                "inputs": [
+                    2
+                ],
+                "type": "query_size"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Material",
+                "name": "<M>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Material",
+                "name": "<M2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<Z2>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    },
+    {
+        "text": [
+            "What is the material of the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "What material is the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "What is the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S> made of?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what is its material?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what material is it?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what is it made of?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<M>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<M2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_unique"
+            },
+            {
+                "inputs": [
+                    2
+                ],
+                "type": "query_material"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Material",
+                "name": "<M>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Material",
+                "name": "<M2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<M2>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    },
+    {
+        "text": [
+            "What shape is the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "What is the shape of the <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>?",
+            "The <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S> has what shape?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what is its shape?",
+            "There is a <Z2> <M2> <S2> [that is] <R> the <Z> <M> <S>; what shape is it?"
+        ],
+        "nodes": [
+            {
+                "inputs": [],
+                "type": "scene"
+            },
+            {
+                "side_inputs": [
+                    "<Z>",
+                    "<M>",
+                    "<S>"
+                ],
+                "inputs": [
+                    0
+                ],
+                "type": "filter_unique"
+            },
+            {
+                "side_inputs": [
+                    "<R>",
+                    "<Z2>",
+                    "<M2>",
+                    "<S2>"
+                ],
+                "inputs": [
+                    1
+                ],
+                "type": "relate_filter_unique"
+            },
+            {
+                "inputs": [
+                    2
+                ],
+                "type": "query_shape"
+            }
+        ],
+        "params": [
+            {
+                "type": "Size",
+                "name": "<Z>"
+            },
+            {
+                "type": "Material",
+                "name": "<M>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S>"
+            },
+            {
+                "type": "Relation",
+                "name": "<R>"
+            },
+            {
+                "type": "Size",
+                "name": "<Z2>"
+            },
+            {
+                "type": "Material",
+                "name": "<M2>"
+            },
+            {
+                "type": "Shape",
+                "name": "<S2>"
+            }
+        ],
+        "constraints": [
+            {
+                "params": [
+                    "<S2>"
+                ],
+                "type": "NULL"
+            }
+        ]
+    }
+]
