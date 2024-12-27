@@ -3,3 +3,6 @@ __pycache__/
 *.swp
 *.pyc
 output/
+slurm_log/
+tmp/
+.vscode/

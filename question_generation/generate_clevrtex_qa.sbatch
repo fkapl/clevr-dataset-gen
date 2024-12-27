@@ -14,11 +14,20 @@ conda activate question_gen
 echo "Start index: $1"
 echo "End index: $2"
 
+# python generate_questions.py \
+#     --input_scene_file /fsx/ubuntu/datasets/clevrtex/properties_train_val_test_easy.json  \
+#     --metadata_file /fsx/ubuntu/clevr-dataset-gen/question_generation/metadata_clevrtex.json \
+#     --synonyms_json /fsx/ubuntu/clevr-dataset-gen/question_generation/synonyms.json \
+#     --template_dir /fsx/ubuntu/clevr-dataset-gen/question_generation/CLEVRTEX_material_templates \
+#     --output_questions_path /fsx/ubuntu/datasets/clevrtex/questions_train_val_test_easy \
+#     --scene_start_idx $1 \
+#     --scene_end_idx $2
+
 python generate_questions.py \
-    --input_scene_file /fsx/ubuntu/datasets/clevrtex/properties_train_val_test_easy.json  \
+    --input_scene_file /fsx/ubuntu/datasets/clevrtex_original/properties_train_val_test_easy.json \
     --metadata_file /fsx/ubuntu/clevr-dataset-gen/question_generation/metadata_clevrtex.json \
     --synonyms_json /fsx/ubuntu/clevr-dataset-gen/question_generation/synonyms.json \
     --template_dir /fsx/ubuntu/clevr-dataset-gen/question_generation/CLEVRTEX_material_templates \
-    --output_questions_path /fsx/ubuntu/datasets/clevrtex/questions_train_val_test_easy \
+    --output_questions_path /fsx/ubuntu/datasets/clevrtex_original/questions_train_val_test_easy \
     --scene_start_idx $1 \
     --scene_end_idx $2

@@ -668,25 +668,47 @@ def convert_rgb_to_names(rgb_tuple):
 MAPPING = {
 	'CLEVRTEX': {
 		'shape': {
-			'Cone': 'cone', 
-			'Cube': 'cube',
-			'Cylinder': 'cylinder', 
-			'Suzanne': 'monkey head', 
-			'Icosahedron': 'icosahedron', # Is there a better name for this? Probably not
-			'NewellTeapot': 'teapot', 
-			'Sphere': 'sphere', 
-			'Torus': 'torus'
+			'cone': 'cone', 
+			'cube': 'cube',
+			'cylinder': 'cylinder', 
+			'monkey': 'monkey head', 
+			'icosahedron': 'icosahedron', # Is there a better name for this? Probably not
+			'teapot': 'teapot', 
+			'sphere': 'sphere', 
+			'torus': 'torus'
 		},
+		# Names for svib clevrtex code
+		# 'shape': {
+		# 	'Cone': 'cone', 
+		# 	'Cube': 'cube',
+		# 	'Cylinder': 'cylinder', 
+		# 	'Suzanne': 'monkey head', 
+		# 	'Icosahedron': 'icosahedron', # Is there a better name for this? Probably not
+		# 	'NewellTeapot': 'teapot', 
+		# 	'Sphere': 'sphere', 
+		# 	'Torus': 'torus'
+		# },
 		'material': {
-			'green_tiles': 'green tiled',
-			'blue_denim': 'blue denim',
-			'red_fabric': 'red fabric',
-			'green_forest': 'green forest',
-			'red_leather': 'red leather',
-			'rocky_gravel': 'rocky gravel',
-			'rusty_metal': 'rusty metal',
-			'white_sandstone': 'white sandstone',
+			'ambientcg_tiles032': 'green tiled',
+			'polyhaven_denim_fabric': 'blue denim',
+			'polyhaven_fabric_pattern_07': 'red fabric',
+			'polyhaven_forrest_ground_01': 'green forest',
+			'polyhaven_leather_red_02': 'red leather',
+			'polyhaven_rocky_gravel': 'rocky gravel',
+			'polyhaven_rusty_metal': 'rusty metal',
+			'polyhaven_white_sandstone_blocks_02': 'white sandstone',
 		},
+		# Names for svib clevrtex code
+		# 'material': {
+		# 	'green_tiles': 'green tiled',
+		# 	'blue_denim': 'blue denim',
+		# 	'red_fabric': 'red fabric',
+		# 	'green_forest': 'green forest',
+		# 	'red_leather': 'red leather',
+		# 	'rocky_gravel': 'rocky gravel',
+		# 	'rusty_metal': 'rusty metal',
+		# 	'white_sandstone': 'white sandstone',
+		# },
 	},
 }
 
