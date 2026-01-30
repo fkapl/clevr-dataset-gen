@@ -31,7 +31,7 @@ def main_scenes(input_dir, output_file_path):
     all_scenes = [scene for _, scene in sorted(zip(scene_ids, all_scenes), key=lambda x: x[0])]
     output = {
         'info': {
-            'dataset': 'clevrtex_train_val_test_easy',
+            'dataset': os.path.basename(input_dir),
         },
         'scenes': all_scenes
     }

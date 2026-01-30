@@ -1,15 +1,35 @@
 #!/bin/bash -x
+#SBATCH --account=obdifflearn
 #SBATCH --job-name=generate_data
 #SBATCH --output=slurm_log/generate_data_%j.out     # Standard output log
 #SBATCH --error=slurm_log/generate_data_%j.err      # Standard error log
-#SBATCH --partition=ml.p4d.24xlarge                  # Partition name (adjust if necessary)
+#SBATCH --partition=booster            # Partition name (adjust if necessary)
 #SBATCH --nodes=1                        # Number of nodes
 #SBATCH --ntasks=48                       # Number of tasks (processes)
 #SBATCH --cpus-per-task=1              # Number of CPU cores per task
-#SBATCH --mem-per-cpu=20G  
+#SBATCH --mem-per-cpu=20G
+#SBATCH --time=2:00:00
 
 #--mem=100G                        # Memory in GB
 #--cpus-per-task=6                # Number of CPU cores per task
+
+# Juelich specific
+export SRUN_CPUS_PER_TASK="$SLURM_CPUS_PER_TASK"
+
+export MASTER_ADDR="$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)"
+if [ "$SYSTEMNAME" = juwelsbooster ] \
+       || [ "$SYSTEMNAME" = juwels ] \
+       || [ "$SYSTEMNAME" = jurecadc ] \
+       || [ "$SYSTEMNAME" = jusuf ]; then
+    # Allow communication over InfiniBand cells on JSC machines.
+    MASTER_ADDR="$MASTER_ADDR"i
+fi
+export MASTER_PORT=54123
+
+# Prevent NCCL not figuring out how to initialize.
+export NCCL_SOCKET_IFNAME=ib0
+# Prevent Gloo not being able to communicate.
+export GLOO_SOCKET_IFNAME=ib0
 
 # sbatch data_generation_pipeline.sh \
 #   ~/svib/data_creation/clevrtex_original/output \
@@ -31,9 +51,9 @@ LENGTH_DATASET=$4
 # E.g. ~/datasets/clevrtex/properties_train_val_test_easy.json
 PROPERTY_FILE="${OUTPUT_DIR}/properties_${DATASET_STRING}.json"
 # /fsx/ubuntu/datasets/clevrtex_original/questions_train_val_test_easy
-QUESTION_OUTPUT_PATH="${OUTPUT_DIR}/questions_${DATASET_STRING}"
+QUESTION_OUTPUT_PATH="${OUTPUT_DIR}/questions_no_material_${DATASET_STRING}"
 #~/datasets/clevrtex/questions_train_val_test_easy.json
-OUTPUT_FILE="${OUTPUT_DIR}/${DATASET_STRING}.hdf5"
+OUTPUT_FILE="${OUTPUT_DIR}/questions_no_material_${DATASET_STRING}.hdf5"
 
 echo "INPUT_DIR: $INPUT_DIR"
 echo "OUTPUT_DIR: $OUTPUT_DIR"
@@ -43,14 +63,19 @@ echo "QUESTION_OUTPUT_PATH: $QUESTION_OUTPUT_PATH"
 echo "OUTPUT_FILE: $OUTPUT_FILE"
 
 # Load env
-source ~/svib/containers/miniconda3/bin/activate
-conda activate question_gen
+eval "$(micromamba shell hook --shell=bash)"
+micromamba activate question_gen
+
+# Load project path
+jutil env activate -p compprotein
+BASE_DIR=${PROJECT}/kapl/clevr-dataset-gen
+echo "BASE_DIR: $BASE_DIR"	
 
 # 1. Concat json property files
 #srun --ntasks=$SLURM_NTASKS 
-python concat_json_files.py \
-    --input_dir $INPUT_DIR \
-    --output_file_path $PROPERTY_FILE
+# python concat_json_files.py \
+#     --input_dir $INPUT_DIR \
+#     --output_file_path $PROPERTY_FILE
 
 # 2. Generate questions
 # Make sure program waits until all are done
@@ -68,11 +93,12 @@ do
   END=$(( (i + 1) * NUMBER_OF_QUESTIONS ))
 
   #Call the other script with the calculated argument
-  srun --exclusive -n1 python generate_questions.py \
+  # Generate questions without material templates
+  srun --exclusive -n1 --gres=gpu:0 python generate_questions.py \
     --input_scene_file $PROPERTY_FILE \
-    --metadata_file /fsx/ubuntu/clevr-dataset-gen/question_generation/metadata_clevrtex.json \
-    --synonyms_json /fsx/ubuntu/clevr-dataset-gen/question_generation/synonyms.json \
-    --template_dir /fsx/ubuntu/clevr-dataset-gen/question_generation/CLEVRTEX_material_templates \
+    --metadata_file $BASE_DIR/question_generation/metadata_clevrtex_no_material.json \
+    --synonyms_json $BASE_DIR/question_generation/synonyms.json \
+    --template_dir $BASE_DIR/question_generation/CLEVRTEX_templates \
     --output_questions_path $QUESTION_OUTPUT_PATH \
     --scene_start_idx "$START" \
     --scene_end_idx "$END" &
@@ -81,23 +107,23 @@ wait
 
 # python generate_questions.py \
 #     --input_scene_file $PROPERTY_FILE \
-#     --metadata_file /fsx/ubuntu/clevr-dataset-gen/question_generation/metadata_clevrtex.json \
-#     --synonyms_json /fsx/ubuntu/clevr-dataset-gen/question_generation/synonyms.json \
-#     --template_dir /fsx/ubuntu/clevr-dataset-gen/question_generation/CLEVRTEX_material_templates \
+#     --metadata_file $BASE_DIR/question_generation/metadata_clevrtex.json \
+#     --synonyms_json $BASE_DIR/question_generation/synonyms.json \
+#     --template_dir $BASE_DIR/question_generation/CLEVRTEX_material_templates \
 #     --output_questions_path $QUESTION_OUTPUT_PATH \
 #     --scene_start_idx 0 \
 #     --scene_end_idx 10 #48000 or 4800 
 
-# 3. Concat json question files
-#srun --ntasks=$SLURM_NTASKS 
+# # 3. Concat json question files
+# #srun --ntasks=$SLURM_NTASKS 
 python concat_json_files.py \
     --input_dir $OUTPUT_DIR \
     --output_file_path "${QUESTION_OUTPUT_PATH}.json" \
     --questions \
-    --question_prefix $DATASET_STRING
+    --question_prefix "questions_no_material_${DATASET_STRING}"
 
-# 4. Create hdf5 file
-#srun --ntasks=$SLURM_NTASKS 
-python create_hdf5_data.py \
-    --input_dir $INPUT_DIR \
-    --output_h5 $OUTPUT_FILE
+# # 4. Create hdf5 file
+# #srun --ntasks=$SLURM_NTASKS 
+# python create_hdf5_data.py \
+#     --input_dir $INPUT_DIR \
+#     --output_h5 $OUTPUT_FILE

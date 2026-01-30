@@ -18,6 +18,9 @@ from tqdm import tqdm
 
 import question_engine as qeng
 
+# For debugging
+# python generate_questions.py --input_scene_file /p/project1/compprotein/kapl/datasets/clevrtex_original/properties_test_cood.json --metadata_file /p/project1/compprotein/kapl/clevr-dataset-gen/question_generation/metadata_clevrtex_no_material.json --synonyms_json /p/project1/compprotein/kapl/clevr-dataset-gen/question_generation/synonyms.json --template_dir /p/project1/compprotein/kapl/clevr-dataset-gen/question_generation/CLEVRTEX_templates --output_questions_path /p/project1/compprotein/kapl/datasets/clevrtex_original/questions_no_material_test_cood --scene_start_idx 0 --scene_end_idx 10
+
 """
 Generate synthetic questions and answers for CLEVR images. Input is a single
 JSON file containing ground-truth scene information for all images, and output
@@ -105,6 +108,8 @@ def precompute_filter_options(scene_struct, metadata):
 		attr_keys = ['size', 'color', 'shape']
 	elif metadata['dataset'] == 'CLEVRTEX':
 		attr_keys = ['size', 'material', 'shape']
+	elif metadata['dataset'] == 'CLEVRTEX_NO_MATERIAL':
+		attr_keys = ['size', 'shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -158,6 +163,8 @@ def add_empty_filter_options(attribute_map, metadata, num_to_add):
 		attr_keys = ['Size', 'Color', 'Shape']
 	elif metadata['dataset'] == 'CLEVRTEX':
 		attr_keys = ['Size', 'Material', 'Shape']
+	elif metadata['dataset'] == 'CLEVRTEX_NO_MATERIAL':
+		attr_keys = ['Size', 'Shape']
 	else:
 		assert False, 'Unrecognized dataset'
 
@@ -710,6 +717,18 @@ MAPPING = {
 		# 	'white_sandstone': 'white sandstone',
 		# },
 	},
+	'CLEVRTEX_NO_MATERIAL': {
+		'shape': {
+			'cone': 'cone', 
+			'cube': 'cube',
+			'cylinder': 'cylinder', 
+			'monkey': 'monkey head', 
+			'icosahedron': 'icosahedron', # Is there a better name for this? Probably not
+			'teapot': 'teapot', 
+			'sphere': 'sphere', 
+			'torus': 'torus'
+		},
+	}
 }
 
 def convert_data_format(data, index, dataset):
@@ -719,6 +738,9 @@ def convert_data_format(data, index, dataset):
 		for i in range(len(data['objects'])):
 			data['objects'][i]['shape'] = MAPPING[dataset]['shape'][data['objects'][i]['shape']]
 			data['objects'][i]['material'] = MAPPING[dataset]['material'][data['objects'][i]['material']]
+	elif dataset == 'CLEVRTEX_NO_MATERIAL':
+		for i in range(len(data['objects'])):
+			data['objects'][i]['shape'] = MAPPING[dataset]['shape'][data['objects'][i]['shape']]
 	else:
 		raise ValueError('Unrecognized dataset "%s"' % dataset)
 
@@ -729,7 +751,7 @@ def main(args):
 	with open(args.metadata_file, 'r') as f:
 		metadata = json.load(f)
 		dataset = metadata['dataset']
-		if dataset not in ['CLEVR-v1.0', 'Multi-dSprites', 'CLEVRTEX']:
+		if dataset not in ['CLEVR-v1.0', 'Multi-dSprites', 'CLEVRTEX', 'CLEVRTEX_NO_MATERIAL']:
 			raise ValueError('Unrecognized dataset "%s"' % dataset)
 
 	functions_by_name = {}

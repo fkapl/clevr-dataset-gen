@@ -35,8 +35,10 @@ def main(args):
         image_files.extend([os.path.join(root, f) for f in files if f.endswith('image.png')])
         mask_files.extend([os.path.join(root, f) for f in files if f.endswith('mask.png')])
 
-    image_files.sort()
-    mask_files.sort()
+    image_files.sort(key=lambda x: int(os.path.basename(x).split('_')[0]))
+    mask_files.sort(key=lambda x: int(os.path.basename(x).split('_')[0]))
+
+    raise ValueError("MAKE SURE THESE ARE SORTED")
 
     if len(image_files) != len(mask_files):
         raise ValueError("Number of images and masks do not match.")
